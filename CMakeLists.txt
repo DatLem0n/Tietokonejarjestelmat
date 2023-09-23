@@ -4,3 +4,4 @@ project(Tietokonejarjestelmat C)
 set(CMAKE_C_STANDARD 23)
 
 add_executable(Tietokonejarjestelmat main.c)
+target_link_libraries(Tietokonejarjestelmat m)
