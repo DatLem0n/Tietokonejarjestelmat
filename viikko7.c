@@ -8,8 +8,8 @@ void shuffle(uint8_t *list, uint16_t list_size);
 void movavg(float *array, uint8_t array_size, uint8_t window_size);
 int8_t tictactoe_check(int8_t * gameboard, int win_len);
 int checkLines(int* points, int pointAmount, int winLength);
-int checkRows(int* board, int* points, int pointAmount, int winLength);
-int checkDiag(int* board, int* points, int pointAmount, int winLength);
+int checkRows(int8_t * board, int* points, int pointAmount, int winLength);
+int checkDiag(int8_t * board, int* points, int pointAmount, int winLength);
 
 int mainViikko7(){
     printf("%ld",factorial(4));
@@ -23,8 +23,12 @@ int mainViikko7(){
     movavg(data, 5, 3);
     int8_t board[100] = {0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
     int8_t board2[100] = {0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+    int8_t board3[100] = {1,1,0,1,1,1,0,0,0,1,0,1,1,0,0,0,0,0,1,0,0,1,1,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,0,0,0,1,1,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,};
     printf("\n%i", tictactoe_check(board, 3)); // 1
+    printf("\n");
     printf("\n%i", tictactoe_check(board2, 9)); // 1
+    printf("\n");
+    printf("\n%i", tictactoe_check(board3, 10)); // 0
 
     return 0;
 }
@@ -93,85 +97,95 @@ int8_t tictactoe_check(int8_t* gameboard, int win_len) {
     }
     if (win_len > 1) {
         if (x_amount >= win_len) {
-          xWin = checkRows((int *) gameboard, x, x_amount, win_len) || checkLines(x, x_amount, win_len) || checkDiag((int * )gameboard, x, x_amount, win_len);
+            xWin = checkRows(gameboard, x, x_amount, win_len) + checkLines(x, x_amount, win_len) + checkDiag(gameboard, x, x_amount, win_len);
         }
 
         if (o_amount >= win_len) {
-            oWin = checkRows((int *) gameboard, o, o_amount, win_len) || checkLines(o, o_amount, win_len) || checkDiag((int * ) gameboard, o, o_amount, win_len);
+            oWin = checkRows(gameboard, o, o_amount, win_len) + checkLines(o, o_amount, win_len) + checkDiag(gameboard, o, o_amount, win_len);
         }
     }
-    if (xWin || oWin) {
+    if (xWin || oWin){
         if (xWin && oWin) return 0;
-        if (xWin) return 1;
-        if (oWin) return 2;
+        if (xWin >= 1) return 1;
+        if (oWin >= 1) return 2;
     }
     return 0;
 }
 
 int checkLines(int* points, int pointAmount, int winLength) {
-    int length = 0, longest = 0;
+    int length = 1, longest = 0, wins = 0;
 
     for (int i = 0; i < pointAmount - 1; ++i) {
         if (points[i] + 1 == points[i + 1]) {
             length++;
+
             if (length > longest) {
                 longest = length;
+                if (longest >= winLength){
+                    wins++;
+                }
             }
         } else {
-            length = 0;
+            length = 1;
         }
     }
-
-    if (longest >= winLength){
-        return 1;
-    }
-    return 0;
+    return wins;
 }
 
-int checkRows(int* board, int* points, int pointAmount, int winLength){
-    int length = 0, longest = 0;
+int checkRows(int8_t * board, int* points, int pointAmount, int winLength){
+    int length = 0, longest = 0, wins = 0;
 
     for (int i = 0; i < pointAmount; ++i) {
         for (int j = i; j < pointAmount; ++j) {
             if (points[i] + 10 == points[j]) {
-                length++;
                 do {
                     length++;
-                    printf("%i", length);
-                }while(board[points[i] + 10 * length] == board[i]);
-                if (length > longest) {
-                    longest = length;
-                }
-                length = 0;
-            }
-        }
-    }
-    if (longest >= winLength){
-        return 1;
-    }
-    return 0;
+                }while(board[points[i] + (10 * length)] == board[points[i]]);
 
+            }
+            if (length > longest) {
+                longest = length;
+                if (longest >= winLength){
+                    wins ++;
+                }
+            }
+            length = 0;
+        }
+
+    }
+
+    return wins;
 }
 
-int checkDiag(int*board, int* points, int pointAmount, int winLength){
-    int length = 0, longest = 0;
+int checkDiag(int8_t *board, int* points, int pointAmount, int winLength){
+    int length = 0, longest = 0, wins = 0;
 
     for (int i = 0; i < pointAmount; ++i) {
         for (int j = i; j < pointAmount; ++j) {
-            if ((points[i] + 11 == points[j]) || (points[i] + 9 == points[j])) {
+            if (points[i] + 11 == points[j]) {
                 length++;
                 do {
                     length++;
-                }while((board[points[i] + 11 * length] == board[j]) || (board[points[i] + 9 * length] == board[i]));
-                if (length > longest) {
-                    longest = length;
-                }
-                length = 0;
+                }while(board[points[i] + 11 * length] == board[points[i]]);
+
             }
+            else if ((points[i] + 9 * length == points[j]) && points[i] != 0){
+                do {
+                    length++;
+                    printf(" %i", length);
+                }while(board[points[i] + 9 * length] == board[points[i]]);
+
+            }
+            if (length > longest) {
+                longest = length;
+                if (longest >= winLength){
+                    wins ++;
+                }
+            }
+            length = 0;
         }
+
     }
-    if (longest >= winLength){
-        return 1;
-    }
-    return 0;
+
+    return wins;
 }
