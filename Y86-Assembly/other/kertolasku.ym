@@ -1,0 +1,30 @@
+.pos 0
+    irmovq pino,%rbp
+    irmovq pino,%rsp
+    irmovq $3,%rdi
+    irmovq $4,%rsi
+main:
+    call multiply
+    halt
+.pos 0x100
+multiply:
+    irmovq $0,%rdx
+    rrmovq %rdi,%r8
+    rrmovq %rsi,%r9
+    subq %rdx,%r8
+    je zero
+    subq %rdx,%r9
+    je zero
+    irmovq $1,%rsi
+loop:
+    addq %r8,%rax
+    subq %rsi,%r9
+    je end
+    jmp loop
+zero:
+    irmovq $0,%rax
+    ret
+end:
+    ret
+.pos 0x400
+pino:

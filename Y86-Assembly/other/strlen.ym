@@ -1,0 +1,39 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+main:
+    call strlen
+    halt
+.pos 0x100
+strlen:
+    irmovq $0,%rbx
+    irmovq $8,%rdx
+    irmovq $1, %rcx
+    irmovq 0x400,%r8
+loop:
+    mrmovq (%r8),%r9
+    subq %rbx,%r9
+    je end
+    addq %rdx,%r8
+    addq %rcx,%rax
+    jmp loop
+end:
+    ret
+.pos 0x400
+.align 8
+string:
+    .quad 0x4e
+    .quad 0x4a
+    .quad 0x47
+    .quad 0x4e
+    .quad 0x59
+    .quad 0x4c
+    .quad 0x5a
+    .quad 0x56
+    .quad 0x55
+    .quad 0x42
+    .quad 0x4d
+    .quad 0x4b
+    .quad 0x0
+.pos 0x800
+stack:

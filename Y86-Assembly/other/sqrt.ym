@@ -1,0 +1,93 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+    irmovq 4355,%r12
+main:
+    call sqrt
+    halt
+.pos 0x100
+sqrt:
+    irmovq 0x10000, %r10 # bit
+    irmovq $0, %r11 # res
+    rrmovq %r12,%r12 # num
+    rrmovq %r12, %rax # num -> rax
+    subq %r10, %rax # while (bit > num)
+    jg loopWhile
+    
+loopBits:
+    irmovq $2, %rcx # 2 -> rcx
+    rrmovq %r10, %rax # bit -> rax
+    call shiftRight # bit >> 2
+    rrmovq %rax, %r10 # result -> bit
+    rrmovq %r12, %rax # num -> rax
+    subq %r10, %rax # check cond
+    jl loopBits
+    
+loopWhile: # while (bit != 0)
+    rrmovq %r10, %rax # bit -> rax
+    irmovq $0, %rsi # just 0
+    subq %rsi, %rax # bit - 0 
+    je end
+    addq %r11, %rax #res + bit -> rax
+    rrmovq %rax, %r8 # res + bit -> r8
+    rrmovq %r12, %rdx # num -> rdx
+    
+    subq %rax, %rdx # num - (res + bit) -> rdx
+    jl else
+    subq %r8, %r12 # num - (res + bit) -> num
+    
+    rrmovq %r11, %rax # res -> rax
+    irmovq $1, %rcx # 1 -> rcx
+    call shiftRight # res >> 1
+    addq %r10, %rax # res + bit -> rax
+    rrmovq %rax, %r11 # rax -> res
+again:
+    rrmovq %r10, %rax # bit -> rax
+    irmovq $2, %rcx # 2 -> rcx
+    call shiftRight # bit >> 2
+    rrmovq %rax,%r10 #result -> bit
+    jmp loopWhile
+    
+else:
+    rrmovq %r11, %rax # res -> rax
+    irmovq $1, %rcx # 1 -> rcx 
+    call shiftRight # res >> 1
+    rrmovq %rax, %r11 # result -> res
+    jmp again
+    
+end:
+    rrmovq %r11, %rcx
+    ret
+
+
+.pos 0x300
+shiftRight: # rax >> %rcx
+    irmovq $0, %r8 # result
+    irmovq $0x80000000, %r9 #mask (add 8 zeroes for 64bit values)
+    irmovq $1, %rbx #outputMask
+    irmovq $32, %rdi #counter (change to 64 for 64bit)
+    subq %rcx, %rdi # counter - shiftAmount
+    irmovq $1, %rsi # 1 
+shiftLoop:
+    subq %rsi, %rdi
+    jl endShift
+    andq %rax, %r9 #value & mask
+    jne writeBit
+    addq %r8, %r8 #result << 1
+back:
+    addq %rax, %rax # value << 1
+    irmovq $0x80000000, %r9
+    jmp shiftLoop
+    
+writeBit:
+    addq %r8, %r8 #result << 1
+    xorq %rbx, %r8 # result = outputMask | result
+    jmp  back
+    
+endShift:
+    rrmovq %r8, %rax
+    ret
+    
+    
+.pos 0x800
+stack:

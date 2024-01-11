@@ -1,0 +1,39 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+main:
+    irmovq $8, %rax
+    irmovq $2, %rcx
+    call shiftRight
+
+.pos 0x300
+shiftRight: # rax >> %rcx
+    irmovq $0, %r8 # result
+    irmovq $0x80000000, %r9 #mask (add 8 zeroes for 64bit values)
+    irmovq $1, %rbx #outputMask
+    irmovq $32, %rdi #counter (change to 64 for 64bit)
+    subq %rcx, %rdi # counter - shiftAmount
+    irmovq $1, %rsi # 1 
+shiftLoop:
+    subq %rsi, %rdi
+    jl endShift
+    andq %rax, %r9 #value & mask
+    jne writeBit
+    addq %r8, %r8 #result << 1
+back:
+    addq %rax, %rax # value << 1
+    irmovq $0x80000000, %r9
+    jmp shiftLoop
+    
+writeBit:
+    addq %r8, %r8 #result << 1
+    xorq %rbx, %r8 # result = outputMask | result
+    jmp  back
+    
+endShift:
+    rrmovq %r8, %rax
+    ret
+    
+    
+.pos 0x800
+stack:

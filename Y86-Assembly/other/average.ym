@@ -1,0 +1,65 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+    irmovq $2,%rcx
+    pushq %rcx
+    irmovq $20,%rcx
+    pushq %rcx
+    irmovq $9,%rcx
+    pushq %rcx
+    irmovq $19,%rcx
+    pushq %rcx
+    irmovq $5,%rcx
+    pushq %rcx
+    irmovq $4,%rcx
+    pushq %rcx
+
+main:
+    call average
+    halt
+.pos 0x100
+average:
+    irmovq $8, %rbx
+    rrmovq %rsp,%r14
+    addq %rbx,%rsp
+    irmovq $0,%rdi
+    irmovq $0,%rsi
+    irmovq $1,%r9
+add:
+    popq %r10
+    addq %r10, %rdi
+    addq %r9,%rsi
+    rrmovq %rsp, %r11
+    subq %rbp,%r11
+    je stackEmpty
+    jmp add
+stackEmpty:
+    call divide
+    rrmovq %r14,%rsp
+    ret
+.pos 0x400
+divide:
+    irmovq $0,%rdx
+    rrmovq %rdi,%r8
+    rrmovq %rsi,%r9
+    subq %rdx,%r8
+    je zero
+    subq %rdx,%r9
+    je zero
+    irmovq $1,%rsi
+loop:
+    addq %rsi,%rax
+    subq %r9,%r8
+    je end
+    jl less
+    jmp loop
+zero:
+    irmovq $0,%rax
+    ret
+less:
+    subq %rsi,%rax
+    ret
+end:
+    ret
+.pos 0x800
+stack:

@@ -1,0 +1,40 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+    irmovq $800,%r12
+    irmovq $11, %r11
+main:
+    call multiply
+    halt
+
+.pos 0x100
+multiply: # 
+    irmovq $0, %rax # result
+    rrmovq %r11, %r11 # multiplicant
+    rrmovq %r12, %r12 # multiplier
+    irmovq $64, %r13 # counter
+    irmovq $1, %r14 # 1
+    irmovq $1, %r8 # bitmask
+    
+loop:
+    subq %r14, %r13
+    je endMultiplication
+    
+    rrmovq %r8, %r9 # shifted bitmask 
+    andq %r12, %r9 # bit
+    jne addNum
+    addq %r11, %r11 # multiplicant << 1
+    addq %r8, %r8 #bitmask << 1
+    jmp loop
+addNum:
+    addq %r11, %rax # rax + multiplicant
+    
+    addq %r11, %r11 # multiplicant << 1
+    addq %r8, %r8 #bitmask << 1
+    jmp loop
+    
+endMultiplication:
+    ret
+    
+.pos 0x800
+stack:

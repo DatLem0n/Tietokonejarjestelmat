@@ -29,10 +29,12 @@ struct polku {
 
 void tarkistus(struct mpudata_t mpu, uint8_t index, float threshold);
 void laske_kuljettu_matka(struct polku *polku);
+int loopTime();
 
 int mainViikko10(){
     struct mpudata_t values = { { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 } };
     tarkistus(values, 5, 3.21);
+    loopTime();
 }
 
 void tarkistus(struct mpudata_t mpu, uint8_t index, float threshold){
@@ -66,7 +68,7 @@ void laske_kuljettu_matka(struct polku *polku){
 
 }
 
-int main() {
+int loopTime() {
 
     uint8_t i=0,j=0;
     clock_t start,end;

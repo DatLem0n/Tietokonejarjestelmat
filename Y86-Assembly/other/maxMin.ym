@@ -1,0 +1,53 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+    irmovq $2,%rcx
+    pushq %rcx
+    irmovq $20,%rcx
+    pushq %rcx
+    irmovq $9,%rcx
+    pushq %rcx
+    irmovq $19,%rcx
+    pushq %rcx
+    irmovq $5,%rcx
+    pushq %rcx
+    irmovq $4,%rcx
+    pushq %rcx
+main:
+    call minMax
+    halt
+.pos 0x100
+minMax:
+    popq %r14
+    irmovq $-9999,%r10
+    irmovq $9999,%r11
+loop:
+    popq %rbx
+    rrmovq %r10,%r8
+    rrmovq %r11,%r9
+    subq %rbx,%r8
+    jl less
+    subq %rbx,%r9
+    jg more
+    
+continue:
+    rrmovq %rsp, %r13
+    subq %rbp,%r13
+    je stackEmpty
+    jmp loop
+    
+stackEmpty:
+    pushq %r14
+    rrmovq %r10, %rdi
+    rrmovq %r11, %rsi
+    ret
+    
+less:
+    rrmovq %rbx,%r10
+    jmp continue
+more:
+    rrmovq %rbx,%r11
+    jmp continue
+    
+.pos 0x800
+stack:

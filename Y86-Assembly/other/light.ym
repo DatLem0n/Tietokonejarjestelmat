@@ -1,0 +1,80 @@
+.pos 0
+    irmovq stack,%rbp
+    irmovq stack,%rsp
+    irmovq $30723,%r13
+main:
+    call ambient
+    halt
+.pos 0x100
+ambient:
+    irmovq $1,%rbx
+    irmovq 0xFFF,%r9
+    irmovq $1, %r12
+    rrmovq %r13,%r10
+    rrmovq %r13,%r11
+    andq %r9,%r13
+loopAmbient:
+    call shiftRight
+    subq %r12,%rbx
+    je ambientEnd
+    jmp loopAmbient
+ambientEnd:
+    rrmovq %rax,%r14
+    ret
+.pos 0x200
+shiftLeft: #r10 << 1
+    irmovq $2,%rsi
+    rrmovq %r10,%rdi
+    call multiply
+    rrmovq %rax,%r10
+    ret
+    
+.pos 0x300
+shiftRight: #r11 >> 12
+    irmovq $0, %rax
+    irmovq $4096,%rsi
+    rrmovq %r11,%rdi
+    call divide
+    rrmovq %rax,%r11
+    ret
+.pos 0x400
+divide: #%rax = %rdi / %rsi. 
+    irmovq $0,%rdx
+    rrmovq %rdi,%r8
+    rrmovq %rsi,%r9
+    subq %rdx,%r8
+    je zero
+    subq %rdx,%r9
+    je zero
+    irmovq $1,%rsi
+loopDivide:
+    addq %rsi,%rax
+    subq %r9,%r8
+    je end
+    jl less
+    jmp loopDivide
+zero:
+    irmovq $0,%rax
+    ret
+less:
+    subq %rsi,%rax
+    ret
+end:
+    ret
+.pos 0x500
+multiply:#%rax = %rdi x %rsi
+    irmovq $0,%rdx
+    rrmovq %rdi,%r8
+    rrmovq %rsi,%r9
+    subq %rdx,%r8
+    je zero
+    subq %rdx,%r9
+    je zero
+    irmovq $1,%rsi
+loopMultiply:
+    addq %r8,%rax
+    subq %rsi,%r9
+    je end
+    jmp loopMultiply
+.pos 0x800
+stack:
